@@ -86,6 +86,26 @@ def get_grafico_ingresos():
     except:
         return jsonify({"mensaje": "No se completó la consulta", "Codigo": False})
 
+@app.route("/estadisticas")
+def get_estadisticas():
+    try:
+        cursor = conexion.connection.cursor()
+        sql = """SELECT DATE(FECHA) AS FECHA, SUM(CANTIDAD_INGRESOS) AS TOTAL_INGRESOS FROM (
+        SELECT DATE(FECHA) AS FECHA, COUNT(*) AS CANTIDAD_INGRESOS FROM ingresos GROUP BY DATE(FECHA)
+        ) AS INGRESOS_POR_FECHA
+        GROUP BY FECHA;"""
+        cursor.execute(sql)
+        estadisticas = cursor.fetchall()
+        resultados = []
+        for fecha, total_ingresos in estadisticas:
+            resultado = {"fecha": fecha, "total_ingresos": total_ingresos}
+            resultados.append(resultado)
+        return jsonify(resultados)
+    
+    except: 
+        return jsonify({"mensaje": "No se completó la consulta", "Codigo": False})
+
+
 
 if __name__ == '__main__':
     app.run(debug=True, port=9036, host='0.0.0.0')

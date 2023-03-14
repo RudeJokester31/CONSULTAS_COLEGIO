@@ -63,7 +63,7 @@ def get_promedio():
        COUNT(*) AS cantidad_ingresos FROM ingresos GROUP BY DATE(fecha)) AS ingresos_por_fecha 
        GROUP BY mes"""
         cursor.execute(sql)
-        count3 = cursor.fetchone()[1]
+        count3 = float(cursor.fetchone()[1])
         data3 = []
         data3.append(count3)
         print (data3)
@@ -72,28 +72,31 @@ def get_promedio():
         return jsonify({"mensaje": "No se completó la consulta", "Codigo": False})
 
 
-@app.route("/grafico_ingresos")
-def get_grafico_ingresos():
-    try:
-        cursor = conexion.connection.cursor()
-        sql = """SELECT FECHA, COUNT(*) AS cantidad_ingresos FROM ingresos GROUP BY FECHA"""
-        cursor.execute(sql)
-        count2 = cursor.fetchone()[0]
-        data2 = []
-        data2.append(count2)
-        print (data2)
-        return jsonify(data2)
-    except:
-        return jsonify({"mensaje": "No se completó la consulta", "Codigo": False})
+# @app.route("/grafico_ingreso")
+# def get_grafico_ingreso():
+#     try:
+#         cursor = conexion.connection.cursor()
+#         sql = """SELECT DATE(FECHA) AS FECHA, SUM(CANTIDAD_INGRESOS) AS TOTAL_INGRESOS FROM (
+#         SELECT DATE(FECHA) AS FECHA, COUNT(*) AS CANTIDAD_INGRESOS FROM ingresos GROUP BY DATE(FECHA)
+#         ) AS INGRESOS_POR_FECHA
+#         GROUP BY FECHA;"""
+#         cursor.execute(sql)
+#         estadisticas = cursor.fetchall()
+#         resultados = []
+#         for fecha, total_ingresos in estadisticas:
+#             resultado = {"fecha": fecha, "total_ingresos": total_ingresos}
+#             resultados.append(resultado)
+#         return jsonify(resultados)
+#     except: 
+#         return jsonify({"mensaje": "No se completó la consulta", "Codigo": False})
 
 @app.route("/estadisticas")
 def get_estadisticas():
     try:
         cursor = conexion.connection.cursor()
-        sql = """SELECT DATE(FECHA) AS FECHA, SUM(CANTIDAD_INGRESOS) AS TOTAL_INGRESOS FROM (
-        SELECT DATE(FECHA) AS FECHA, COUNT(*) AS CANTIDAD_INGRESOS FROM ingresos GROUP BY DATE(FECHA)
-        ) AS INGRESOS_POR_FECHA
-        GROUP BY FECHA;"""
+        sql = """SELECT DATE_FORMAT(FECHA, '%Y-%m-%d') AS FECHA, SUM(CANTIDAD_INGRESOS) AS TOTAL_INGRESOS FROM (
+        SELECT DATE(FECHA) AS FECHA, COUNT(*) AS CANTIDAD_INGRESOS FROM ingresos GROUP BY DATE(FECHA)) AS INGRESOS_POR_FECHA
+        GROUP BY DATE(FECHA)"""
         cursor.execute(sql)
         estadisticas = cursor.fetchall()
         resultados = []
@@ -101,9 +104,25 @@ def get_estadisticas():
             resultado = {"fecha": fecha, "total_ingresos": total_ingresos}
             resultados.append(resultado)
         return jsonify(resultados)
-    
     except: 
         return jsonify({"mensaje": "No se completó la consulta", "Codigo": False})
+    
+
+@app.route("/ingresos", methods=['GET'])
+def listar_ingresos():
+    try:
+        # variable de cursor para la bd
+        cursor = conexion.connection.cursor()
+        sql = "SELECT * FROM ingresos ORDER BY ID_INGRESO"
+        cursor.execute(sql)
+        datos = cursor.fetchall()
+        ingresos = []
+        for fila in datos:
+            ingreso = {"ID_INGRESO": fila[1], "FECHA": fila[2], "ESTADO": fila[3]}
+            ingresos.append(ingreso)
+        return jsonify(ingresos)
+    except Exception as ex:
+        return jsonify({"mensaje": ex, "Codigo": False})
 
 
 

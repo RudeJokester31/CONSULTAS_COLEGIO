@@ -108,7 +108,7 @@ def get_estadisticas():
         return jsonify({"mensaje": "No se completó la consulta", "Codigo": False})
     
 
-@app.route("/ingresos", methods=['GET'])
+@app.route("/l_ingresos", methods=['GET'])
 def listar_ingresos():
     try:
         # variable de cursor para la bd
@@ -118,7 +118,7 @@ def listar_ingresos():
         datos = cursor.fetchall()
         ingresos = []
         for fila in datos:
-            ingreso = {"ID_INGRESO": fila[1], "FECHA": fila[2], "ESTADO": fila[3]}
+            ingreso = {"ID_USUARIO": fila[1], "FECHA": fila[2], "ESTADO": fila[3]}
             ingresos.append(ingreso)
         return jsonify(ingresos)
     except Exception as ex:

@@ -115,9 +115,9 @@ def listar_ingresos():
         cursor = conexion.connection.cursor()
         sql = "SELECT * FROM ingresos ORDER BY ID_INGRESO"
         cursor.execute(sql)
-        datos = cursor.fetchall()
+        datos4 = cursor.fetchall()
         ingresos = []
-        for fila in datos:
+        for fila in datos4:
             ingreso = {"ID_USUARIO": fila[1], "FECHA": fila[2], "ESTADO": fila[3]}
             ingresos.append(ingreso)
         return jsonify(ingresos)
